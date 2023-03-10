@@ -69,7 +69,7 @@ public class ObjectPoolManager : MonoBehaviour
     private void AddNewKey(string key)
     {
         _pools[key] = new Queue<Poolable>();
-        _holders[key] = new GameObject(key.ToUpper()+"S");
+        _holders[key] = new GameObject(key.ToUpperInvariant()+"S");
     }
 
 
