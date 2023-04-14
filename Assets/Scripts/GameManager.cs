@@ -26,25 +26,25 @@ public class GameManager : MonoBehaviour
     [ContextMenu("GetCubeFromPool")]
     public void GetCubeFromPool()
     {
-        cubes.Push(ObjectPoolManager.Instance.GetFromPool(cube));
+        cubes.Push(Poolable.GetFromPool(cube));
     }
     [ContextMenu("AddCubeToPool")]
     public void AddCubeToPool()
     {
         if (cubes.Count > 0)
-            ObjectPoolManager.Instance.AddToPool(cubes.Pop());
+            Poolable.AddToPool(cubes.Pop());
     }
 
     [ContextMenu("GetSphereFromPool")]
     public void GetSphereFromPool()
     {
-        spheres.Push(ObjectPoolManager.Instance.GetFromPool(sphere));
+        spheres.Push(Poolable.GetFromPool(sphere));
     }
     [ContextMenu("AddSphereToPool")]
     public void AddSphereToPool()
     {
         if (spheres.Count > 0)
-            ObjectPoolManager.Instance.AddToPool(spheres.Pop());
+            Poolable.AddToPool(spheres.Pop());
     }
 
 
