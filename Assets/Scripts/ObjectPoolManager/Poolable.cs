@@ -33,10 +33,8 @@ public interface Poolable
 
     }
 
-    static Poolable() {
-        Debug.Log("hi");
-    }
 
+    #region StaticMethods
     public static void AddToPool(Poolable poolable)
     {
         ObjectPoolManager.Instance.AddToPool(poolable);
@@ -46,9 +44,18 @@ public interface Poolable
     {
         return (T)ObjectPoolManager.Instance.GetFromPool(poolable);
     }
-    
 
+    public static T GetFromPool<T>(string key) where T : Poolable
+    {
+        return (T)ObjectPoolManager.Instance.GetFromPool(key);
+    }
 
+    public static bool AddPrefabToPool(Poolable poolable)
+    {
+        return ObjectPoolManager.Instance.AddPrefabToPool(poolable);
+    }
+
+    #endregion
 
     private class ObjectPoolManager
     {
@@ -58,6 +65,8 @@ public interface Poolable
         private Dictionary<string, Queue<Poolable>> _pools = new Dictionary<string, Queue<Poolable>>();
 
         private Dictionary<string, GameObject> _holders = new Dictionary<string, GameObject>();
+
+        private Dictionary<string,Poolable> _prefabs = new Dictionary<string,Poolable>();
 
         public static ObjectPoolManager Instance
         {
@@ -73,9 +82,15 @@ public interface Poolable
 
         private ObjectPoolManager() { }
 
+        public bool AddPrefabToPool(Poolable poolable)
+        {
+            if(_prefabs.ContainsKey(poolable.Key))return false;
+            _prefabs.Add(poolable.Key, poolable);
+            return true;
+        }
+
         public void AddToPool(Poolable poolable)
         {
-
             string key = poolable.Key;
 
             if (!_pools.ContainsKey(key))
@@ -118,6 +133,13 @@ public interface Poolable
 
             return poolable;
 
+        }
+
+        public Poolable GetFromPool(string key)
+        {
+            if(!_prefabs.ContainsKey(key))return null;
+            Poolable poolable = _prefabs[key];
+            return GetFromPool(poolable);
         }
 
         private void AddNewKey(string key)
