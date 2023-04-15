@@ -55,6 +55,11 @@ public interface Poolable
         return ObjectPoolManager.Instance.AddPrefabToPool(poolable);
     }
 
+    public static void Reset()
+    {
+        ObjectPoolManager.Instance.ResetObjectPoolManager();
+    }
+
     #endregion
 
     private class ObjectPoolManager
@@ -80,6 +85,12 @@ public interface Poolable
             }
         }
 
+
+        public void ResetObjectPoolManager()
+        {
+            _instance = new ObjectPoolManager();
+        }
+
         private ObjectPoolManager() { }
 
         public bool AddPrefabToPool(Poolable poolable)
@@ -95,6 +106,8 @@ public interface Poolable
 
             if (!_pools.ContainsKey(key))
                 AddNewKey(key);
+
+            if(_holders[key]==null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
 
             poolable.MonoBehaviour.transform.SetParent(_holders[key].transform);
             poolable.MonoBehaviour.gameObject.SetActive(false);
@@ -124,6 +137,14 @@ public interface Poolable
             }
 
             poolable = pool.Dequeue();
+            if(poolable == null || poolable.MonoBehaviour==null)
+            {
+                isCreated = true;
+                GameObject gameObject = GameObject.Instantiate(poolableInstance.MonoBehaviour.gameObject);
+                Debug.Log("hi");
+                poolable = gameObject.GetComponent<Poolable>();
+            }
+
             if (isCreated) poolable.OnCreate();
             poolable.MonoBehaviour.transform.SetParent(null);
             poolable.MonoBehaviour.gameObject.SetActive(true);

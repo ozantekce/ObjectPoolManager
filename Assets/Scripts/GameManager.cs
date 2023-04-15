@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,8 +15,10 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        Poolable.AddPrefabToPool(cubePrefab);
-        Poolable.AddPrefabToPool(spherePrefab);
+        if(cubePrefab != null)
+            Poolable.AddPrefabToPool(cubePrefab);
+        if(spherePrefab != null)
+            Poolable.AddPrefabToPool(spherePrefab);
     }
 
 
@@ -46,6 +49,11 @@ public class GameManager : MonoBehaviour
             Poolable.AddToPool(_spheres.Dequeue());
     }
 
+    [ContextMenu("ChangeScene")]
+    public void ChangeScene()
+    {
+        SceneManager.LoadScene("Test2");
+    }
 
 
 
