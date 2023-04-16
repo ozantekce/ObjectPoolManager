@@ -8,7 +8,7 @@ public interface Poolable
     [SerializeField]
     public static List<Poolable> poolableObjects = new List<Poolable>();
     public string Key { get; set; }
-    public MonoBehaviour MonoBehaviour { get;}
+    public MonoBehaviour MonoBehaviour { get; }
     public bool Pooled { get; set; }
 
 
@@ -40,7 +40,7 @@ public interface Poolable
         ObjectPoolManager.Instance.AddToPool(poolable);
     }
 
-    public static T GetFromPool<T>(T poolable) where T: Poolable 
+    public static T GetFromPool<T>(T poolable) where T : Poolable
     {
         return (T)ObjectPoolManager.Instance.GetFromPool(poolable);
     }
@@ -71,7 +71,7 @@ public interface Poolable
 
         private Dictionary<string, GameObject> _holders = new Dictionary<string, GameObject>();
 
-        private Dictionary<string,Poolable> _prefabs = new Dictionary<string,Poolable>();
+        private Dictionary<string, Poolable> _prefabs = new Dictionary<string, Poolable>();
 
         public static ObjectPoolManager Instance
         {
@@ -95,7 +95,7 @@ public interface Poolable
 
         public bool AddPrefabToPool(Poolable poolable)
         {
-            if(_prefabs.ContainsKey(poolable.Key))return false;
+            if (_prefabs.ContainsKey(poolable.Key)) return false;
             _prefabs.Add(poolable.Key, poolable);
             return true;
         }
@@ -107,7 +107,7 @@ public interface Poolable
             if (!_pools.ContainsKey(key))
                 AddNewKey(key);
 
-            if(_holders[key]==null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
+            if (_holders[key] == null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
 
             poolable.MonoBehaviour.transform.SetParent(_holders[key].transform);
             poolable.MonoBehaviour.gameObject.SetActive(false);
@@ -117,6 +117,24 @@ public interface Poolable
             poolable.OnAddToPool();
 
         }
+
+        private void AddToPoolNewObject(Poolable poolable)
+        {
+            string key = poolable.Key;
+
+            if (!_pools.ContainsKey(key))
+                AddNewKey(key);
+
+            if (_holders[key] == null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
+
+            poolable.MonoBehaviour.transform.SetParent(_holders[key].transform);
+            poolable.MonoBehaviour.gameObject.SetActive(false);
+            _pools[key].Enqueue(poolable);
+
+            poolable.Pooled = true;
+
+        }
+
 
         public Poolable GetFromPool(Poolable poolableInstance)
         {
@@ -133,11 +151,11 @@ public interface Poolable
             {
                 isCreated = true;
                 GameObject gameObject = GameObject.Instantiate(poolableInstance.MonoBehaviour.gameObject);
-                AddToPool(gameObject.GetComponent<Poolable>());
+                AddToPoolNewObject(gameObject.GetComponent<Poolable>());
             }
 
             poolable = pool.Dequeue();
-            if(poolable == null || poolable.MonoBehaviour==null)
+            if (poolable == null || poolable.MonoBehaviour == null)
             {
                 isCreated = true;
                 GameObject gameObject = GameObject.Instantiate(poolableInstance.MonoBehaviour.gameObject);
@@ -158,7 +176,7 @@ public interface Poolable
 
         public Poolable GetFromPool(string key)
         {
-            if(!_prefabs.ContainsKey(key))return null;
+            if (!_prefabs.ContainsKey(key)) return null;
             Poolable poolable = _prefabs[key];
             return GetFromPool(poolable);
         }
