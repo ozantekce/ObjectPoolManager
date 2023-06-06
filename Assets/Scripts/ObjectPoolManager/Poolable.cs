@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+
 public interface Poolable
 {
 
@@ -69,7 +70,7 @@ public interface Poolable
 
         private Dictionary<string, Queue<Poolable>> _pools = new Dictionary<string, Queue<Poolable>>();
 
-        private Dictionary<string, GameObject> _holders = new Dictionary<string, GameObject>();
+        //private Dictionary<string, GameObject> _holders = new Dictionary<string, GameObject>();
 
         private Dictionary<string, Poolable> _prefabs = new Dictionary<string, Poolable>();
 
@@ -107,9 +108,9 @@ public interface Poolable
             if (!_pools.ContainsKey(key))
                 AddNewKey(key);
 
-            if (_holders[key] == null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
+            //if (_holders[key] == null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
 
-            poolable.MonoBehaviour.transform.SetParent(_holders[key].transform);
+            //poolable.MonoBehaviour.transform.SetParent(_holders[key].transform);
             poolable.MonoBehaviour.gameObject.SetActive(false);
             _pools[key].Enqueue(poolable);
 
@@ -125,9 +126,9 @@ public interface Poolable
             if (!_pools.ContainsKey(key))
                 AddNewKey(key);
 
-            if (_holders[key] == null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
+            //if (_holders[key] == null) _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
 
-            poolable.MonoBehaviour.transform.SetParent(_holders[key].transform);
+            //poolable.MonoBehaviour.transform.SetParent(_holders[key].transform);
             poolable.MonoBehaviour.gameObject.SetActive(false);
             _pools[key].Enqueue(poolable);
 
@@ -184,7 +185,7 @@ public interface Poolable
         private void AddNewKey(string key)
         {
             _pools[key] = new Queue<Poolable>();
-            _holders[key] = new GameObject(key.ToUpperInvariant() + "S");
+            //_holders[key] = new GameObject(key.ToUpperInvariant() + "S");
         }
 
 
