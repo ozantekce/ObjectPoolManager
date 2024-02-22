@@ -3,12 +3,12 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-public interface Poolable
+public interface IPoolable
 {
 
     [SerializeField]
-    public static List<Poolable> poolableObjects = new List<Poolable>();
-    public string Key { get; set; }
+    public static List<IPoolable> poolableObjects = new List<IPoolable>();
+    public string PoolKey { get; }
     public MonoBehaviour MonoBehaviour { get; }
     public bool Pooled { get; set; }
 
@@ -36,22 +36,22 @@ public interface Poolable
 
 
     #region StaticMethods
-    public static void AddToPool(Poolable poolable)
+    public static void AddToPool(IPoolable poolable)
     {
         ObjectPoolManager.Instance.AddToPool(poolable);
     }
 
-    public static T GetFromPool<T>(T poolable) where T : Poolable
+    public static T GetFromPool<T>(T poolable) where T : IPoolable
     {
         return (T)ObjectPoolManager.Instance.GetFromPool(poolable);
     }
 
-    public static T GetFromPool<T>(string key) where T : Poolable
+    public static T GetFromPool<T>(string key) where T : IPoolable
     {
         return (T)ObjectPoolManager.Instance.GetFromPool(key);
     }
 
-    public static bool AddPrefabToPool(Poolable poolable)
+    public static bool AddPrefabToPool(IPoolable poolable)
     {
         return ObjectPoolManager.Instance.AddPrefabToPool(poolable);
     }
@@ -68,11 +68,11 @@ public interface Poolable
 
         private static ObjectPoolManager _instance;
 
-        private Dictionary<string, Queue<Poolable>> _pools = new Dictionary<string, Queue<Poolable>>();
+        private Dictionary<string, Queue<IPoolable>> _pools = new Dictionary<string, Queue<IPoolable>>();
 
         //private Dictionary<string, GameObject> _holders = new Dictionary<string, GameObject>();
 
-        private Dictionary<string, Poolable> _prefabs = new Dictionary<string, Poolable>();
+        private Dictionary<string, IPoolable> _prefabs = new Dictionary<string, IPoolable>();
 
         public static ObjectPoolManager Instance
         {
@@ -94,16 +94,16 @@ public interface Poolable
 
         private ObjectPoolManager() { }
 
-        public bool AddPrefabToPool(Poolable poolable)
+        public bool AddPrefabToPool(IPoolable poolable)
         {
-            if (_prefabs.ContainsKey(poolable.Key)) return false;
-            _prefabs.Add(poolable.Key, poolable);
+            if (_prefabs.ContainsKey(poolable.PoolKey)) return false;
+            _prefabs.Add(poolable.PoolKey, poolable);
             return true;
         }
 
-        public void AddToPool(Poolable poolable)
+        public void AddToPool(IPoolable poolable)
         {
-            string key = poolable.Key;
+            string key = poolable.PoolKey;
 
             if (!_pools.ContainsKey(key))
                 AddNewKey(key);
@@ -119,9 +119,9 @@ public interface Poolable
 
         }
 
-        private void AddToPoolNewObject(Poolable poolable)
+        private void AddToPoolNewObject(IPoolable poolable)
         {
-            string key = poolable.Key;
+            string key = poolable.PoolKey;
 
             if (!_pools.ContainsKey(key))
                 AddNewKey(key);
@@ -137,22 +137,22 @@ public interface Poolable
         }
 
 
-        public Poolable GetFromPool(Poolable poolableInstance)
+        public IPoolable GetFromPool(IPoolable poolableInstance)
         {
-            string key = poolableInstance.Key;
+            string key = poolableInstance.PoolKey;
 
             if (!_pools.ContainsKey(key))
                 AddNewKey(key);
 
-            Poolable poolable;
+            IPoolable poolable;
 
-            Queue<Poolable> pool = _pools[key];
+            Queue<IPoolable> pool = _pools[key];
             bool isCreated = false;
             if (pool.Count == 0)
             {
                 isCreated = true;
                 GameObject gameObject = GameObject.Instantiate(poolableInstance.MonoBehaviour.gameObject);
-                AddToPoolNewObject(gameObject.GetComponent<Poolable>());
+                AddToPoolNewObject(gameObject.GetComponent<IPoolable>());
             }
 
             poolable = pool.Dequeue();
@@ -160,8 +160,7 @@ public interface Poolable
             {
                 isCreated = true;
                 GameObject gameObject = GameObject.Instantiate(poolableInstance.MonoBehaviour.gameObject);
-                Debug.Log("hi");
-                poolable = gameObject.GetComponent<Poolable>();
+                poolable = gameObject.GetComponent<IPoolable>();
             }
 
             if (isCreated) poolable.OnCreate();
@@ -175,22 +174,48 @@ public interface Poolable
 
         }
 
-        public Poolable GetFromPool(string key)
+        public IPoolable GetFromPool(string key)
         {
             if (!_prefabs.ContainsKey(key)) return null;
-            Poolable poolable = _prefabs[key];
+            IPoolable poolable = _prefabs[key];
             return GetFromPool(poolable);
         }
 
         private void AddNewKey(string key)
         {
-            _pools[key] = new Queue<Poolable>();
+            _pools[key] = new Queue<IPoolable>();
             //_holders[key] = new GameObject(key.ToUpperInvariant() + "S");
         }
 
 
     }
 
+
+
+
+}
+
+public static class ObjectPoolManagerExtensions
+{
+    public static void AddToPool(this IPoolable poolable)
+    {
+        IPoolable.AddToPool(poolable);
+    }
+
+    public static T GetFromPool<T>(this T poolable) where T : IPoolable
+    {
+        return IPoolable.GetFromPool(poolable);
+    }
+
+    public static T GetFromPool<T>(this string key) where T : IPoolable
+    {
+        return IPoolable.GetFromPool<T>(key);
+    }
+
+    public static bool AddPrefabToPool(IPoolable poolable)
+    {
+        return IPoolable.AddPrefabToPool(poolable);
+    }
 
 
 }

@@ -13,40 +13,59 @@ public class GameManager : MonoBehaviour
     private Queue<MyObject> _cubes = new Queue<MyObject>();
     private Queue<MyObject> _spheres = new Queue<MyObject>();
 
+
     private void Awake()
     {
-        if(cubePrefab != null)
-            Poolable.AddPrefabToPool(cubePrefab);
-        if(spherePrefab != null)
-            Poolable.AddPrefabToPool(spherePrefab);
+        DontDestroyOnLoad(this);
     }
-
 
     [ContextMenu("GetCubeFromPool")]
     public void GetCubeFromPool()
     {
-        MyObject cube = Poolable.GetFromPool<MyObject>("cube");
+        MyObject cube = cubePrefab.GetFromPool();
         _cubes.Enqueue(cube);
     }
     [ContextMenu("AddCubeToPool")]
     public void AddCubeToPool()
     {
         if (_cubes.Count > 0)
-            Poolable.AddToPool(_cubes.Dequeue());
+        {
+            MyObject cube = _cubes.Dequeue();
+            if(cube != null)
+            {
+                cube.AddToPool();
+            }
+            else
+            {
+                AddCubeToPool();
+            }
+                
+        }
     }
 
 
     [ContextMenu("GetSphereFromPool")]
     public void GetSphereFromPool()
     {
-        MyObject sphere = Poolable.GetFromPool<MyObject>("sphere");
+        MyObject sphere = spherePrefab.GetFromPool();
         _spheres.Enqueue(sphere);
     }
     [ContextMenu("AddSphereToPool")]
     public void AddSphereToPool()
     {
         if (_spheres.Count > 0)
-            Poolable.AddToPool(_spheres.Dequeue());
+        {
+            MyObject spheres = _spheres.Dequeue();
+            if (spheres != null)
+            {
+                spheres.AddToPool();
+            }
+            else
+            {
+                AddSphereToPool();
+            }
+
+        }
     }
 
     [ContextMenu("ChangeScene")]

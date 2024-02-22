@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MyObject : MonoBehaviour,Poolable
+public class MyObject : MonoBehaviour, IPoolable
 {
 
-    public string key;
+    public string poolkey;
 
-    public string Key { get => key; set => key = value; }
+    public string PoolKey { get => poolkey; }
 
     public MonoBehaviour MonoBehaviour => this;
 
