@@ -1,20 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class MyObject : MonoBehaviour, IPoolable
 {
 
     public string poolkey;
 
-    public string PoolKey { get => poolkey; }
-
     public MonoBehaviour MonoBehaviour => this;
 
     private bool _pooled = false;
     public bool Pooled { get => _pooled; set => _pooled = value; }
-
+    public string PrefabID { get => poolkey; set { } }
 
     public void OnCreate()
     {
