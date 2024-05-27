@@ -243,7 +243,18 @@ public interface IPoolable
         /// <returns>The poolable object, if available; otherwise, null.</returns>
         public IPoolable GetFromPool(string key)
         {
-            if (!_prefabs.ContainsKey(key)) return null;
+            if (!_prefabs.ContainsKey(key))
+            {
+                while (_pools.ContainsKey(key) && _pools[key].Count > 0)
+                {
+                    IPoolable instance = _pools[key].Dequeue();
+                    if (instance == null || instance.MonoBehaviour == null) continue;
+                    instance.MonoBehaviour.gameObject.SetActive(true);
+                    return instance;
+                }
+
+                return null;
+            }
             IPoolable poolable = _prefabs[key];
             return GetFromPool(poolable);
         }
