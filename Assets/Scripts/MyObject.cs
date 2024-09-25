@@ -1,17 +1,14 @@
 using UnityEngine;
 
-public class MyObject : MonoBehaviour, IPoolable
+public class MyObject : MonoBehaviour, IPoolableObject
 {
-
-    public string poolkey;
-
+    
     public MonoBehaviour MonoBehaviour => this;
 
-    private bool _pooled = false;
-    public bool Pooled { get => _pooled; set => _pooled = value; }
-    public string PrefabID { get => poolkey; set { } }
+    public bool Pooled { get; set; }
+    [field: SerializeField] public string PrefabID { get; set; }
 
-    public void OnCreate()
+    public void OnCreated()
     {
         Debug.Log("Create");
         float x = Random.Range(-8f, +8f);
@@ -28,6 +25,5 @@ public class MyObject : MonoBehaviour, IPoolable
         Debug.Log("Get");
     }
 
-
-
+    
 }
