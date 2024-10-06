@@ -8,7 +8,8 @@ public interface IPoolableObject
 
     public void AddToPool()
     {
-        ObjectPoolManager.Instance.AddToPool(this);
+        if (ObjectPoolManager.Instance != null)
+            ObjectPoolManager.Instance.AddToPool(this);
     }
 
     public virtual void OnCreated()
@@ -24,17 +25,39 @@ public interface IPoolableObject
     }
 
     #region Static Methods
-    public static void AddToPool(IPoolableObject poolable) => ObjectPoolManager.Instance.AddToPool(poolable);
+    public static void AddToPool(IPoolableObject poolable)
+    {
+        if (ObjectPoolManager.Instance != null)
+            ObjectPoolManager.Instance.AddToPool(poolable);
+    }
 
-    public static T GetFromPool<T>(T poolable) where T : IPoolableObject => (T) ObjectPoolManager.Instance.GetFromPool(poolable);
+    public static T GetFromPool<T>(T poolable) where T : IPoolableObject
+    {
+        if (ObjectPoolManager.Instance != null)
+            return (T)ObjectPoolManager.Instance.GetFromPool(poolable);
+        return default;
+    }
 
-    public static T GetFromPool<T>(string key) where T : IPoolableObject => (T)ObjectPoolManager.Instance.GetFromPool(key);
+    public static T GetFromPool<T>(string key) where T : IPoolableObject
+    {
+        if (ObjectPoolManager.Instance != null)
+            return (T)ObjectPoolManager.Instance.GetFromPool(key);
+        return default;
+    }
 
-    public static bool RegisterPrefab(IPoolableObject poolable) => ObjectPoolManager.Instance.RegisterPrefab(poolable);
+    public static bool RegisterPrefab(IPoolableObject poolable)
+    {
+        if (ObjectPoolManager.Instance != null)
+            return ObjectPoolManager.Instance.RegisterPrefab(poolable);
+        return false;
+    }
 
-    public static void ResetPoolManager() => ObjectPoolManager.Instance.ResetPoolManager();
+    public static void ResetPoolManager()
+    {
+        if (ObjectPoolManager.Instance != null)
+            ObjectPoolManager.Instance.ResetPoolManager();
+    }
     #endregion
-
 
 
 

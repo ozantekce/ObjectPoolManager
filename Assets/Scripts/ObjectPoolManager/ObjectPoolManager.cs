@@ -5,11 +5,12 @@ public class ObjectPoolManager : MonoBehaviour
 {
 
     private static ObjectPoolManager _instance;
+    private static bool _quiting;
     public static ObjectPoolManager Instance
     {
         get
         {
-            if (_instance == null)
+            if (_instance == null && !_quiting)
             {
                 // Try to find an existing instance in the scene
                 _instance = FindObjectOfType<ObjectPoolManager>();
@@ -64,6 +65,11 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
+
+    private void OnApplicationQuit()
+    {
+        _quiting = true;
+    }
 
     public void ResetPoolManager()
     {
