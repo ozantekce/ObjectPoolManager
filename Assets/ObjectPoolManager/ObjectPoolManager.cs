@@ -5,12 +5,12 @@ public class ObjectPoolManager : MonoBehaviour
 {
 
     private static ObjectPoolManager _instance;
-    private static bool _quiting;
+    private static bool _quitting;
     public static ObjectPoolManager Instance
     {
         get
         {
-            if (_instance == null && !_quiting)
+            if (_instance == null && !_quitting)
             {
                 // Try to find an existing instance in the scene
                 _instance = FindObjectOfType<ObjectPoolManager>();
@@ -68,7 +68,7 @@ public class ObjectPoolManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        _quiting = true;
+        _quitting = true;
     }
 
     public void ResetPoolManager()
@@ -91,6 +91,9 @@ public class ObjectPoolManager : MonoBehaviour
 
     public void AddToPool(IPoolableObject poolable)
     {
+        if (poolable.Pooled)
+            throw new System.Exception("Object is already pooled");
+
         string key = poolable.PrefabID;
 
         if (!_pools.ContainsKey(key))
@@ -106,6 +109,9 @@ public class ObjectPoolManager : MonoBehaviour
 
     private void AddToPoolNewObject(IPoolableObject poolable)
     {
+        if (poolable.Pooled)
+            throw new System.Exception("Object is already pooled");
+
         string key = poolable.PrefabID;
         if (!_pools.ContainsKey(key))
             AddNewKey(key);
@@ -140,15 +146,20 @@ public class ObjectPoolManager : MonoBehaviour
             isCreated = true;
             GameObject gameObject = GameObject.Instantiate(prefab.MonoBehaviour.gameObject);
             poolable = gameObject.GetComponent<IPoolableObject>();
+            AddToPoolNewObject(poolable);
         }
 
-        if (isCreated) poolable.OnCreated();
+        if (isCreated)
+            poolable.OnCreated();
+
+        if (!poolable.Pooled)
+            throw new System.Exception("Object is not pooled");
+
         poolable.MonoBehaviour.transform.SetParent(null);
         poolable.MonoBehaviour.gameObject.SetActive(true);
         poolable.Pooled = false;
 
         poolable.OnGetFromPool();
-
         return poolable;
     }
 
@@ -161,7 +172,12 @@ public class ObjectPoolManager : MonoBehaviour
                 IPoolableObject instance = _pools[key].Dequeue();
                 if (instance == null || instance.MonoBehaviour == null)
                     continue;
+                if (!instance.Pooled)
+                    throw new System.Exception("Object is not pooled");
+                instance.MonoBehaviour.transform.SetParent(null);
                 instance.MonoBehaviour.gameObject.SetActive(true);
+                instance.Pooled = false;
+                instance.OnGetFromPool();
                 return instance;
             }
 
